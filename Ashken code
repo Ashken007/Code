@@ -1,0 +1,91 @@
+// SupplySetu React + Firebase Boilerplate
+
+// Directory Structure:
+// - src/
+//   - components/
+//     - Navbar.js
+//     - VendorDashboard.js
+//     - SupplierDashboard.js
+//   - pages/
+//     - Login.js
+//     - Register.js
+//     - Home.js
+//   - firebase.js
+//   - App.js
+//   - index.js
+
+// 1. firebase.js
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: 'YOUR_API_KEY',
+  authDomain: 'YOUR_AUTH_DOMAIN',
+  projectId: 'YOUR_PROJECT_ID',
+  storageBucket: 'YOUR_STORAGE_BUCKET',
+  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+  appId: 'YOUR_APP_ID'
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// 2. App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import VendorDashboard from './components/VendorDashboard';
+import SupplierDashboard from './components/SupplierDashboard';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/vendor" element={<VendorDashboard />} />
+        <Route path="/supplier" element={<SupplierDashboard />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
+// 3. Login.js (simplified)
+import React, { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+
+function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // Redirect to appropriate dashboard
+      navigate('/vendor'); // or '/supplier' based on user role
+    } catch (error) {
+      console.error('Login error:', error.message);
+    }
+  };
+
+  return (
+    <form onSubmit={handleLogin}>
+      <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+      <button type="submit">Login</button>
+    </form>
+  );
+}
+
+export default Login;
